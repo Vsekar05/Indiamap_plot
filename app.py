@@ -1,27 +1,64 @@
-import os
 import dash
+import dash_auth
 import dash_core_components as dcc
 import dash_html_components as html
-import plotly.express as px
-import pandas as pd
+from dash.dependencies import Input, Output
+import json
 
+india_states=json.load(open("states_india.geojson","r"))
 
-app = dash.Dash(__name__)
+state_id_map = {}
+for feature in india_states['features']:
+  feature['id'] = feature['properties']['state_code']
+  state_id_map[feature['properties']['st_nm']] = feature['id']
+ 
+USERNAME_PASSWORD_PAIRS = [
+    ['nethu', '12345'],['guvi', 'guvi'],['vignesh','vignesh']
+]
+app = dash.Dash()
+auth = dash_auth.BasicAuth(app,USERNAME_PASSWORD_PAIRS)
 server = app.server
 
-df = pd.read_csv('https://gist.githubusercontent.com/chriddyp/5d1ea79569ed194d432e56108a04d188/raw/a9f9e8076b837d541398e999dcbac2b2826a81f8/gdp-life-exp-2007.csv')
+colors = {
+   'background': '#111111',
+   'text': '#FC0101'
+}
 
-fig = px.scatter(df, x="gdp per capita", y="life expectancy",
-                 size="population", color="continent", hover_name="country",
-                 log_x=True, size_max=60)
+Data=pd.read_csv("https://raw.githubusercontent.com/nikhilkumarsingh/choropleth-python-tutorial/master/india_census.csv")
+Data['Density'] = Data['Density[a]'].apply(lambda x: int(x.split("/")[0].replace(",","")))
+Data['id']=Data['State or union territory'].apply(lambda x:state_id_map[x])
+Data.head()
 
-app.layout = html.Div([
-    dcc.Graph(
-        id='life-exp-vs-gdp',
-        figure=fig
-    )
+fig = px.choropleth(Data,locations="id",geojson=india_states,color="Density")
+fig.update_geos(fitbounds='locations',visible=False)
+ 
+fig.update_layout(
+   plot_bgcolor=colors['background'],
+   paper_bgcolor=colors['background'],
+   font_color=colors['text']
+)
+ 
+app.layout = html.Div(style={'backgroundColor': colors['background']}, children=[
+   html.H1(
+       children='India Map',
+       style={
+           'textAlign': 'center',
+           'color': colors['text']
+       }
+   ),
+ 
+   html.Div(children='The color depicts the population for each state', style={
+       'textAlign': 'center',
+       'color': colors['text']
+   }),
+ 
+   dcc.Graph(
+       id='example-graph-2',
+       figure=fig
+   )
 ])
+ 
 
-
+ 
 if __name__ == '__main__':
     app.run_server(debug=True)
