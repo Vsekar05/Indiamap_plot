@@ -1,4 +1,3 @@
-import os
 import dash
 import dash_auth
 import dash_core_components as dcc
