@@ -24,4 +24,4 @@ plotly
 pytz
 requests
 retrying
-os
+
