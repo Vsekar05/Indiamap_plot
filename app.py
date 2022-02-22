@@ -7,7 +7,7 @@ import pandas as pd
 import plotly.express as px
 import json
 
-india_states=json.load(open("states_india.geojson","r"))
+india_states=pd.read_csv("https://raw.githubusercontent.com/Subhash9325/GeoJson-Data-of-Indian-States/master/Indian_States")
 
 state_id_map = {}
 for feature in india_states['features']:
