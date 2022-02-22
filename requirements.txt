@@ -15,7 +15,6 @@ idna
 ipython-genutils
 itsdangerous
 Jinja2
-json
 jsonschema
 jupyter-core
 nbformat
